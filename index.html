@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontal</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<header>
+    Frontal
+</header>
+
+<div class="container">
+    <div class="code-block">
+        <div class="mac-bar">
+            <span class="circle red"></span>
+            <span class="circle yellow"></span>
+            <span class="circle green"></span>
+        </div>
+        <pre><code class="language-python">
+import os
+import ctypes
+import winreg
+import subprocess
+import shutil
+import sys
+import time
+from colorama import init, Fore, Style
+init(autoreset=True)
+
+def cls():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def def_art():
+    print(Fore.GREEN + """
+███████╗██████╗  ██████╗ ███╗   ██╗████████╗ █████╗ ██╗     
+██╔════╝██╔══██╗██╔═══██╗████╗  ██║╚══██╔══╝██╔══██╗██║     
+█████╗  ██████╔╝██║   ██║██╔██╗ ██║   ██║   ███████║██║     
+██╔══╝  ██╔══██╗██║   ██║██║╚██╗██║   ██║   ██╔══██║██║     
+██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║   ██║  ██║███████╗
+╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
+""")
+
+def menu():
+    print(Fore.WHITE + "1. Start\t\t3. Exit")
+    print(Fore.WHITE + "2. Credit")
+    print(Fore.RED + "\nSelect >> ", end='')
+
+def log_success(func):
+    print(Fore.GREEN + f"[Frontal] | {func} Success...")
+
+def log_error(func):
+    print(Fore.RED + f"[Frontal] | {func} Error...")
+
+def optimize():
+    print(Fore.GREEN + "[Frontal] | Checks...")
+    time.sleep(0.5)
+    SPI_SETKEYBOARDSPEED = 0x000B
+    SPI_SETMOUSESPEED = 0x0071
+
+    try:
+        ctypes.windll.user32.SystemParametersInfoW(SPI_SETKEYBOARDSPEED, 31, 0, 0)
+        ctypes.windll.user32.SystemParametersInfoW(SPI_SETMOUSESPEED, 0, 20, 0)
+        log_success("Keyboard & Mouse Speed")
+    except:
+        log_error("Keyboard & Mouse Speed")
+
+    try:
+        subprocess.run('powercfg /setactive SCHEME_MIN', shell=True)
+        log_success("High Performance Power")
+    except:
+        log_error("High Performance Power")
+
+    try:
+        subprocess.run('powershell -Command "Set-ItemProperty -Path HKCU:\\Software\\Microsoft\\GameBar -Name AllowAutoGameMode -Value 1"', shell=True)
+        log_success("Game Mode")
+    except:
+        log_error("Game Mode")
+
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             r"Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU",
+                             0, winreg.KEY_ALL_ACCESS)
+        for i in range(100):
+            try:
+                winreg.DeleteValue(key, chr(65+i))
+            except:
+                break
+        winreg.CloseKey(key)
+        log_success("RunMRU Clean")
+    except:
+        log_error("RunMRU Clean")
+
+    temp_paths = [os.environ['TEMP'], os.environ['WINDIR'] + "\\Temp"]
+    for path in temp_paths:
+        try:
+            for root, dirs, files in os.walk(path):
+                for f in files:
+                    try:
+                        os.remove(os.path.join(root, f))
+                    except:
+                        pass
+                for d in dirs:
+                    try:
+                        shutil.rmtree(os.path.join(root, d))
+                    except:
+                        pass
+            log_success(f"Temp Clean: {path}")
+        except:
+            log_error(f"Temp Clean: {path}")
+
+    try:
+        subprocess.run('powershell -Command "Get-Process | Where-Object {$_.Responding -eq $false} | Stop-Process -Force"', shell=True)
+        log_success("Kill Not Responding Processes")
+    except:
+        log_error("Kill Not Responding Processes")
+
+while True:
+    cls()
+    def_art()
+    menu()
+    choice = input()
+    if choice == '1':
+        cls()
+        optimize()
+        input(Fore.GREEN + "\nOptimization completed! Press Enter to return to menu...")
+    elif choice == '2':
+        cls()
+        print(Fore.GREEN + "Made By: Wftap")
+        print(Fore.BLUE + "Telegram: @wftap67")
+        input("\nPress Enter to return to menu...")
+    elif choice == '3':
+        sys.exit()
+    else:
+        input(Fore.RED + "Incorrect choice! Press Enter...")
+        </code></pre>
+    </div>
+</div>
+
+<footer>
+    © 2026 Frontal
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
