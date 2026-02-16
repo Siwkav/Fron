@@ -31,13 +31,59 @@ import subprocess
 import shutil
 import sys
 import time
-from colorama import init, Fore, Style
+import uuid
+import hashlib
+from colorama import init, Fore
+import requests
+
 init(autoreset=True)
+
+url = "secret"
+user_key = ""
+days_left = 0
+
+def get_hwid():
+    raw = str(uuid.getnode()) + os.environ.get("USERNAME", "")
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+def authorize():
+    global user_key, days_left
+    hwid = get_hwid()
+    user_key = input("Enter Key: ")
+    try:
+        r = requests.post(url + "val", json={"key": user_key, "hwid": hwid}, timeout=5)
+        data = r.json()
+        if data.get("status") == "work":
+            days_left = data.get("days_remaining")
+            print(Fore.GREEN + f"Authorized | Days left: {days_left}")
+            return True
+        elif data.get("status") == "hwid_mismatch":
+            print(Fore.RED + "Key already bound to another PC!")
+        elif data.get("status") == "expired":
+            print(Fore.RED + "Key expired!")
+        else:
+            print(Fore.RED + "Invalid key!")
+    except:
+        print(Fore.RED + "Authorization server error!")
+    return False
+
+if not authorize():
+    input("Press Enter to exit...")
+    sys.exit()
 
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def def_art():
+def check_server():
+    try:
+        r = requests.get(url, timeout=3)
+        if r.status_code == 200 and r.json().get("status") == "work":
+            return True
+    except:
+        pass
+    return False
+
+def def_art(server_working):
     print(Fore.GREEN + """
 ███████╗██████╗  ██████╗ ███╗   ██╗████████╗ █████╗ ██╗     
 ██╔════╝██╔══██╗██╔═══██╗████╗  ██║╚══██╔══╝██╔══██╗██║     
@@ -46,10 +92,16 @@ def def_art():
 ██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║   ██║  ██║███████╗
 ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚══════╝
 """)
+    if server_working:
+        print(Fore.GREEN + "Server: Working")
+    else:
+        print(Fore.RED + "Server: Not working")
 
-def menu():
-    print(Fore.WHITE + "1. Start\t\t3. Exit")
-    print(Fore.WHITE + "2. Credit")
+def menu(server_working):
+    print(Fore.WHITE + "1. Start\t\t4. Info")
+    print(Fore.WHITE + "2. Credit\t\t99. Exit")
+    if not server_working:
+        print(Fore.RED + "\nNote: Server not working, Start is disabled!")
     print(Fore.RED + "\nSelect >> ", end='')
 
 def log_success(func):
@@ -121,24 +173,43 @@ def optimize():
     except:
         log_error("Kill Not Responding Processes")
 
+def show_info():
+    cls()
+    print(Fore.GREEN + f"Key: {user_key}")
+    print(Fore.GREEN + f"Days left: {days_left}")
+    input("\nPress Enter to return to menu...")
+
 while True:
     cls()
-    def_art()
-    menu()
+    server_working = check_server()
+    def_art(server_working)
+    menu(server_working)
     choice = input()
+
     if choice == '1':
-        cls()
-        optimize()
-        input(Fore.GREEN + "\nOptimization completed! Press Enter to return to menu...")
+        if server_working:
+            cls()
+            optimize()
+            input(Fore.GREEN + "\nOptimization completed! Press Enter to return to menu...")
+        else:
+            input(Fore.RED + "Server not working! Start is disabled. Press Enter...")   
+
     elif choice == '2':
         cls()
         print(Fore.GREEN + "Made By: Wftap")
         print(Fore.BLUE + "Telegram: @wftap67")
+        print(Fore.YELLOW + "Source: https://siwkav.github.io/Fron/")
         input("\nPress Enter to return to menu...")
-    elif choice == '3':
+
+    elif choice == '4':
+        show_info()
+
+    elif choice == '99':
         sys.exit()
+
     else:
         input(Fore.RED + "Incorrect choice! Press Enter...")
+
         </code></pre>
     </div>
 </div>
@@ -153,3 +224,4 @@ while True:
 
 </body>
 </html>
+
